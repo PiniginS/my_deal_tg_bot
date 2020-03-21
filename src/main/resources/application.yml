@@ -1,0 +1,6 @@
+bot:
+  token: "1022104603:AAH972QaQOgjDnTZh5oIWtMcvkA6-v6jlwg"
+  botName: "HomeDealBot"
+  proxyHost: "64.225.24.13"
+  proxyPort: 3128
+  proxyType: "HTTP"

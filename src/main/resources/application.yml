@@ -4,3 +4,14 @@ bot:
   proxyHost: "64.225.24.13"
   proxyPort: 3128
   proxyType: "HTTP"
+
+spring:
+  datasource:
+    url: jdbc:sqlite:dealbot.db
+  flyway:
+    user: sa
+    password: sa
+    schemas: main
+    url: ${spring.datasource.url}
+    locations: 'classpath:/db/init'
+    enabled: true

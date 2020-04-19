@@ -6,8 +6,7 @@ import org.springframework.boot.runApplication
 import org.telegram.telegrambots.ApiContextInitializer
 import org.telegram.telegrambots.meta.TelegramBotsApi
 import ru.kithome.deal_bot.config.BotConfiguration
-import ru.kithome.deal_bot.service.DealBotService
-
+import ru.kithome.deal_bot.bot.DealBot
 
 @SpringBootApplication
 @EnableConfigurationProperties(BotConfiguration::class)
@@ -16,6 +15,6 @@ open class Application
 fun main(args: Array<String>) {
     ApiContextInitializer.init()
     val context = runApplication<Application>(*args)
-    val dealBot = context.getBean(DealBotService::class.java)
+    val dealBot = context.getBean(DealBot::class.java)
     TelegramBotsApi().registerBot(dealBot)
 }

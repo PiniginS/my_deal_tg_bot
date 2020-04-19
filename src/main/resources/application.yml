@@ -1,8 +1,8 @@
 bot:
   token: "1022104603:AAH972QaQOgjDnTZh5oIWtMcvkA6-v6jlwg"
   botName: "HomeDealBot"
-  proxyHost: "64.225.24.13"
-  proxyPort: 3128
+  proxyHost: "81.210.32.101"
+  proxyPort: 8080
   proxyType: "HTTP"
 
 spring:
@@ -15,3 +15,4 @@ spring:
     url: ${spring.datasource.url}
     locations: 'classpath:/db/init'
     enabled: true
+    clean-on-validation-error: true

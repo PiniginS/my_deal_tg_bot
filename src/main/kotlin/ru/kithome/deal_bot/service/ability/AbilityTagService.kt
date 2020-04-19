@@ -1,12 +1,13 @@
-package ru.kithome.deal_bot.service
+package ru.kithome.deal_bot.service.ability
 
 import org.springframework.stereotype.Service
 import org.telegram.abilitybots.api.objects.MessageContext
 import ru.kithome.deal_bot.repository.SettingsRepository
+import ru.kithome.deal_bot.service.TagService
 
 @Service
-class DealBotAbilityTagService(private val tagService: TagService,
-                               private val settingsRepository: SettingsRepository) {
+class AbilityTagService(private val tagService: TagService,
+                        private val settingsRepository: SettingsRepository) {
 
     fun addNewTag(context: MessageContext): String {
         try {

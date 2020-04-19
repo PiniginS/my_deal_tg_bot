@@ -17,8 +17,7 @@ CREATE TABLE DEALS
     tag VARCHAR(5),
     is_active BOOLEAN NOT NULL,
     timestamp VARCHAR(25),
-    description VARCHAR(100),
-    FOREIGN KEY (tag) REFERENCES TAGS(tag)
+    description VARCHAR(100)
 );
 
 CREATE TABLE SETTINGS

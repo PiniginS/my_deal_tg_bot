@@ -8,14 +8,16 @@ import ru.kithome.deal_bot.repository.TagRepository
 import java.time.LocalDateTime
 
 @Service
-class TagService(private val tagRepository: TagRepository,
-                 private val settingsRepository: SettingsRepository) {
+class TagService(
+    private val tagRepository: TagRepository,
+    private val settingsRepository: SettingsRepository
+) {
 
     companion object {
         const val defaultTag = "defaultTag"
     }
 
-    fun addTag(tag : String, description : String?) {
+    fun addTag(tag: String, description: String?) {
         val entity = TagEntity()
         entity.tag = tag
         entity.isActive = true
@@ -24,23 +26,18 @@ class TagService(private val tagRepository: TagRepository,
         tagRepository.save(entity)
     }
 
-    fun getAllActiveTags() : List<TagEntity> {
-        return tagRepository.findAll().filter { it.isActive }.toList()
+    fun getAllActiveTags(): List<TagEntity> {
+        return tagRepository.findAll().toList()
     }
 
-    fun setDefaultTag(tag : String) {
-        try {
-            tagRepository.findByTag(tag)
-        }
-        catch (exception : Exception) {
-            throw DealBotException("Can't find tag \"$tag\"")
-        }
+    fun setDefaultTag(tag: String) {
+        if (!isTagExist(tag)) throw DealBotException("Can't find tag \"$tag\"")
         val defaultFlagSetting = settingsRepository.findByKey(defaultTag)
         defaultFlagSetting.value = tag
         settingsRepository.save(defaultFlagSetting)
     }
 
-    fun getDefaultTag() : String {
+    fun getDefaultTag(): String {
         val defaultFlagSetting = settingsRepository.findByKey(defaultTag)
         val defaultFlagValue = defaultFlagSetting.value
         defaultFlagValue?.let {
@@ -49,10 +46,12 @@ class TagService(private val tagRepository: TagRepository,
         throw Exception("Cant't get default flag")
     }
 
-//    fun toggleTagFlag(tag : String) : Boolean {
-//        val tagEntity = tagRepository.findByTag(tag)
-//        tagEntity.isActive = !tagEntity.isActive
-//        tagRepository.save(tagEntity)
-//        return tagEntity.isActive
-//    }
+    fun isTagExist(tag: String): Boolean {
+        return try {
+            tagRepository.findByTag(tag)
+            true
+        } catch (exception: Exception) {
+            false
+        }
+    }
 }

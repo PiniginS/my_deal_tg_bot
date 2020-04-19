@@ -3,7 +3,7 @@ package ru.kithome.deal_bot.entity
 import javax.persistence.*
 
 @Entity
-@Table (name = "TAGS")
+@Table (name = "DEALS")
 class DealEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

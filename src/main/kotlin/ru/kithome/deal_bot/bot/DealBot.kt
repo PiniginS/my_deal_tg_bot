@@ -6,43 +6,38 @@ import org.telegram.abilitybots.api.objects.Ability
 import org.telegram.abilitybots.api.objects.Locality
 import org.telegram.abilitybots.api.objects.MessageContext
 import org.telegram.abilitybots.api.objects.Privacy
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage
+import org.telegram.telegrambots.meta.api.objects.Update
 import ru.kithome.deal_bot.config.BotConfiguration
-import ru.kithome.deal_bot.service.DealBotAbilityTagService
+import ru.kithome.deal_bot.service.ability.AbilityDealService
+import ru.kithome.deal_bot.service.ability.AbilityTagService
 
 
 @Component
-class DealBot(private val botAbilityTagService: DealBotAbilityTagService,
-              botConfiguration: BotConfiguration
+class DealBot(
+    private val abilityTagService: AbilityTagService,
+    private val abilityDealService: AbilityDealService,
+    botConfiguration: BotConfiguration
 ) : AbilityBot(botConfiguration.token, botConfiguration.botName, botConfiguration.getBotOptions()) {
 
     override fun creatorId(): Int {
         return 261560926
     }
 
-//    override fun onUpdateReceived(update: Update?) {
-//        super.onUpdateReceived(update)
-//        update?.let {
-//            try {
-//                println("Echo ${update.message.text}")
-//                tagService.addTag(update.message.text, "Новый тег")
-//                sendMessage(update, "Tag created \"${update.message.text}\"")
-//                sendMessage(update, "Tags : \n ${tagService.getAllTags().map { "${it.tag}:${it.description}" }}")
-//            }
-//            catch(e : Exception) {
-//                sendMessage(update, "Error while creating tag : \"${update.message.text}\". Reason : " +
-//                        "${e.message}")
-//            }
-//        }
-//    }
-//
-//    fun sendTet (update: Update)  {
-//        sender.execute(SendMessage(update.message.chatId,update.message.text))
-//    }
-//    fun sendMessage (update: Update, message : String)  {
-//        sender.execute(SendMessage(update.message.chatId,message))
-//    }
+    override fun onUpdateReceived(update: Update?) {
+        super.onUpdateReceived(update)
+        update?.let {
+            val updateText = update.message.text
+            if (updateText.startsWith("/")) return
+            sendMessage(update, abilityDealService.addDealWithDefaultTag(update.message.text))
+        }
+    }
 
-    fun addTag() : Ability {
+    private fun sendMessage(update: Update, message: String) {
+        sender.execute(SendMessage(update.message.chatId, message))
+    }
+
+    fun addTag(): Ability {
         return Ability
             .builder()
             .name("tag")
@@ -50,7 +45,7 @@ class DealBot(private val botAbilityTagService: DealBotAbilityTagService,
             .locality(Locality.ALL)
             .privacy(Privacy.PUBLIC)
             .action { ctx: MessageContext ->
-                val response = botAbilityTagService.addNewTag(ctx)
+                val response = abilityTagService.addNewTag(ctx)
                 silent.send(
                     response,
                     ctx.chatId()
@@ -59,7 +54,7 @@ class DealBot(private val botAbilityTagService: DealBotAbilityTagService,
             .build()
     }
 
-    fun allTags() : Ability {
+    fun allTags(): Ability {
         return Ability
             .builder()
             .name("tags")
@@ -67,7 +62,7 @@ class DealBot(private val botAbilityTagService: DealBotAbilityTagService,
             .locality(Locality.ALL)
             .privacy(Privacy.PUBLIC)
             .action { ctx: MessageContext ->
-                val response = botAbilityTagService.getAllTags()
+                val response = abilityTagService.getAllTags()
                 silent.send(
                     response,
                     ctx.chatId()
@@ -76,7 +71,7 @@ class DealBot(private val botAbilityTagService: DealBotAbilityTagService,
             .build()
     }
 
-    fun defaultTag() : Ability {
+    fun defaultTag(): Ability {
         return Ability
             .builder()
             .name("dtag")
@@ -84,7 +79,24 @@ class DealBot(private val botAbilityTagService: DealBotAbilityTagService,
             .locality(Locality.ALL)
             .privacy(Privacy.PUBLIC)
             .action { ctx: MessageContext ->
-                val response = botAbilityTagService.setOrGetDefaultTag(ctx)
+                val response = abilityTagService.setOrGetDefaultTag(ctx)
+                silent.send(
+                    response,
+                    ctx.chatId()
+                )
+            }
+            .build()
+    }
+
+    fun getDeals(): Ability {
+        return Ability
+            .builder()
+            .name("deals")
+            .info("Get deals")
+            .locality(Locality.ALL)
+            .privacy(Privacy.PUBLIC)
+            .action { ctx: MessageContext ->
+                val response = abilityDealService.findAllDealsWithDefaultTag()
                 silent.send(
                     response,
                     ctx.chatId()

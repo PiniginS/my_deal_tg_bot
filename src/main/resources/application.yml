@@ -4,6 +4,7 @@ bot:
   proxyHost: "81.210.32.101"
   proxyPort: 8080
   proxyType: "HTTP"
+  proxyEnabled: false
 
 spring:
   datasource:

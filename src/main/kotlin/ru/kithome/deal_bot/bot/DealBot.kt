@@ -7,13 +7,15 @@ import org.telegram.abilitybots.api.objects.Locality
 import org.telegram.abilitybots.api.objects.MessageContext
 import org.telegram.abilitybots.api.objects.Privacy
 import ru.kithome.deal_bot.config.BotConfiguration
+import ru.kithome.deal_bot.config.properties.BotProperties
 import ru.kithome.deal_bot.service.DealBotAbilityTagService
 
 
 @Component
 class DealBot(private val botAbilityTagService: DealBotAbilityTagService,
-              botConfiguration: BotConfiguration
-) : AbilityBot(botConfiguration.token, botConfiguration.botName, botConfiguration.getBotOptions()) {
+              private val botConfiguration: BotConfiguration,
+              private val botProperties: BotProperties
+) : AbilityBot(botProperties.token, botProperties.botName, botConfiguration.getBotOptions()) {
 
     override fun creatorId(): Int {
         return 261560926

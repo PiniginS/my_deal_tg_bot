@@ -7,9 +7,10 @@ import org.telegram.telegrambots.ApiContextInitializer
 import org.telegram.telegrambots.meta.TelegramBotsApi
 import ru.kithome.deal_bot.config.BotConfiguration
 import ru.kithome.deal_bot.bot.DealBot
+import ru.kithome.deal_bot.config.properties.BotProperties
 
 @SpringBootApplication
-@EnableConfigurationProperties(BotConfiguration::class)
+@EnableConfigurationProperties(BotProperties::class)
 open class Application
 
 fun main(args: Array<String>) {

@@ -7,3 +7,4 @@ Commands:
 /dtag [TAG_NAME] - Set or get default tag, call without param return current default tag
 /deals - Get all items with default tag
 /rmdeals [TAG_NAME] - Remove all deals with tag
+Use + or - to add or delete item for current tag

@@ -6,8 +6,10 @@ import ru.kithome.deal_bot.repository.SettingsRepository
 import ru.kithome.deal_bot.service.TagService
 
 @Service
-class AbilityTagService(private val tagService: TagService,
-                        private val settingsRepository: SettingsRepository) {
+class AbilityTagService(
+    private val tagService: TagService,
+    private val settingsRepository: SettingsRepository
+) {
 
     fun addNewTag(context: MessageContext): String {
         try {
@@ -18,7 +20,7 @@ class AbilityTagService(private val tagService: TagService,
             }
             return "Invalid params : ${context.arguments().map { it }}"
         } catch (e: Exception) {
-           return "Can't add tag due : ${e.message}"
+            return "Can't add tag due : ${e.message}"
         }
     }
 
@@ -34,19 +36,19 @@ class AbilityTagService(private val tagService: TagService,
         }
     }
 
-    fun setOrGetDefaultTag(context: MessageContext) : String {
+    fun setOrGetDefaultTag(context: MessageContext): String {
         val tag = context.arguments().getOrNull(0)
         tag?.let {
-            return setDefaultTag(tag);
+            return setDefaultTag(tag)
         }
-        return "Default tag is ${getDefaultTag()}"
+        return getDefaultTag()
     }
 
-    private fun setDefaultTag(tag : String) : String{
+    private fun setDefaultTag(tag: String): String {
         return try {
             tagService.setDefaultTag(tag)
             "Default tag has been changed to $tag"
-        } catch (exception : Exception) {
+        } catch (exception: Exception) {
             "Can't change default tag due : ${exception.message}"
         }
     }
@@ -54,7 +56,7 @@ class AbilityTagService(private val tagService: TagService,
     private fun getDefaultTag(): String {
         return try {
             "Default tag is ${tagService.getDefaultTag()}"
-        } catch (exception : Exception) {
+        } catch (exception: Exception) {
             "Can't get default tag due : ${exception.message}"
         }
     }

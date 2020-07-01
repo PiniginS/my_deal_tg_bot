@@ -5,7 +5,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
 import org.telegram.telegrambots.ApiContextInitializer
 import org.telegram.telegrambots.meta.TelegramBotsApi
-import ru.kithome.deal_bot.config.BotConfiguration
 import ru.kithome.deal_bot.bot.DealBot
 import ru.kithome.deal_bot.config.properties.BotProperties
 

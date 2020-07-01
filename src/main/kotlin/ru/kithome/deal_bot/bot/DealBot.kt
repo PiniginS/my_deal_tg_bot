@@ -9,16 +9,17 @@ import org.telegram.abilitybots.api.objects.Privacy
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.kithome.deal_bot.config.BotConfiguration
+import ru.kithome.deal_bot.config.properties.BotProperties
 import ru.kithome.deal_bot.service.ability.AbilityDealService
 import ru.kithome.deal_bot.service.ability.AbilityTagService
-
 
 @Component
 class DealBot(
     private val abilityTagService: AbilityTagService,
     private val abilityDealService: AbilityDealService,
+    botProperties: BotProperties,
     botConfiguration: BotConfiguration
-) : AbilityBot(botConfiguration.token, botConfiguration.botName, botConfiguration.getBotOptions()) {
+) : AbilityBot(botProperties.token, botProperties.botName, botConfiguration.getBotOptions()) {
 
     override fun creatorId(): Int {
         return 261560926
@@ -29,7 +30,10 @@ class DealBot(
         update?.let {
             val updateText = update.message.text
             if (updateText.startsWith("/")) return
-            sendMessage(update, abilityDealService.addDealWithDefaultTag(update.message.text))
+
+            if (updateText.startsWith("+") || updateText.startsWith("-")) {
+                sendMessage(update, abilityDealService.processDealWithDefaultTag(update.message.text))
+            }
         }
     }
 
@@ -105,4 +109,20 @@ class DealBot(
             .build()
     }
 
+    fun removeDeals(): Ability {
+        return Ability
+            .builder()
+            .name("rmdeals")
+            .info("Remove all deals by tag")
+            .locality(Locality.ALL)
+            .privacy(Privacy.PUBLIC)
+            .action { ctx: MessageContext ->
+                val response = abilityDealService.removeDealsByTag(ctx)
+                silent.send(
+                    response,
+                    ctx.chatId()
+                )
+            }
+            .build()
+    }
 }

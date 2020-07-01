@@ -1,14 +1,17 @@
 package ru.kithome.deal_bot.service.ability
 
+import com.vdurmont.emoji.EmojiParser
 import org.springframework.stereotype.Service
 import org.telegram.abilitybots.api.objects.MessageContext
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 import ru.kithome.deal_bot.repository.SettingsRepository
 import ru.kithome.deal_bot.service.TagService
+import java.util.ArrayList
 
 @Service
 class AbilityTagService(
-    private val tagService: TagService,
-    private val settingsRepository: SettingsRepository
+    private val tagService: TagService
 ) {
 
     fun addNewTag(context: MessageContext): String {
@@ -60,22 +63,34 @@ class AbilityTagService(
             "Can't get default tag due : ${exception.message}"
         }
     }
-//
-//    fun getTagsKeyboard(): SendMessage {
-//        tagService.getAllActiveTags().map {
-//            var row : List<InlineKeyboardButton> = listOf(
-//
-//            )
-//        }
-//    }
-//
-//    fun toggleActiveTag(tag : String) : String {
-//        return try {
-//            val newState = tagService.toggleTagFlag(tag)
-//            "Tag : \"$tag\" is active? : $newState"
-//        }
-//        catch (exception : Exception) {
-//            "Error while deactivate tag : \"$tag\" due : ${exception.message}"
-//        }
-//    }
+
+    fun getKeyboardMarkup() : InlineKeyboardMarkup {
+        val inlineKeyboardMarkup = InlineKeyboardMarkup()
+        val buttonsRowList: MutableList<List<InlineKeyboardButton>> = ArrayList()
+
+        val defaultTagName = tagService.getDefaultTag()
+
+        for (tag in tagService.getAllActiveTags()) {
+            val tagNameButton = InlineKeyboardButton()
+            val removeTagButton = InlineKeyboardButton()
+            val buttonsRow: MutableList<InlineKeyboardButton> = ArrayList()
+
+            if (tag.tag.equals(defaultTagName)) {
+                tagNameButton.text = EmojiParser.parseToUnicode(":white_check_mark:${tag.tag} : ${tag.description}")
+            }
+            else {
+                tagNameButton.text = "${tag.tag} : ${tag.description}"
+            }
+            tagNameButton.callbackData = "@setDefaultTag:${tag.tag}"
+
+            removeTagButton.text = EmojiParser.parseToUnicode(":wastebasket:")
+            removeTagButton.callbackData = "@removeTag:${tag.tag}"
+
+            buttonsRow.add(tagNameButton)
+            buttonsRow.add(removeTagButton)
+            buttonsRowList.add(buttonsRow)
+        }
+        inlineKeyboardMarkup.keyboard = buttonsRowList
+        return inlineKeyboardMarkup
+    }
 }

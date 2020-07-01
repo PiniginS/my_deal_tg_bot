@@ -43,7 +43,7 @@ class TagService(
         defaultFlagValue?.let {
             return defaultFlagValue
         }
-        throw Exception("Cant't get default flag")
+        throw DealBotException("Cant't get default flag")
     }
 
     fun isTagExist(tag: String): Boolean {
@@ -53,5 +53,14 @@ class TagService(
         } catch (exception: Exception) {
             false
         }
+    }
+
+    fun removeTag(tag: String) {
+        if (!isTagExist(tag))
+            throw DealBotException("Can't remove tag $tag, it doesn't exist")
+
+        if (tag == getDefaultTag())
+            throw DealBotException("Can't remove default tag $tag")
+        tagRepository.deleteByTag(tag)
     }
 }

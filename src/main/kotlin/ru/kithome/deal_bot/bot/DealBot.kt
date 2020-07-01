@@ -8,15 +8,20 @@ import org.telegram.abilitybots.api.objects.MessageContext
 import org.telegram.abilitybots.api.objects.Privacy
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.Update
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException
 import ru.kithome.deal_bot.config.BotConfiguration
 import ru.kithome.deal_bot.config.properties.BotProperties
 import ru.kithome.deal_bot.service.ability.AbilityDealService
 import ru.kithome.deal_bot.service.ability.AbilityTagService
+import ru.kithome.deal_bot.service.ability.KeyboardCallbackService
+
 
 @Component
 class DealBot(
     private val abilityTagService: AbilityTagService,
     private val abilityDealService: AbilityDealService,
+    private val keyboardCallbackService: KeyboardCallbackService,
     botProperties: BotProperties,
     botConfiguration: BotConfiguration
 ) : AbilityBot(botProperties.token, botProperties.botName, botConfiguration.getBotOptions()) {
@@ -28,11 +33,31 @@ class DealBot(
     override fun onUpdateReceived(update: Update?) {
         super.onUpdateReceived(update)
         update?.let {
-            val updateText = update.message.text
-            if (updateText.startsWith("/")) return
+            if (update.hasMessage()) {
+                val updateText = update.message.text
+                if (updateText.startsWith("/")) return
 
-            if (updateText.startsWith("+") || updateText.startsWith("-")) {
-                sendMessage(update, abilityDealService.processDealWithDefaultTag(update.message.text))
+                if (updateText.startsWith("+") || updateText.startsWith("-")) {
+                    sendMessage(update, abilityDealService.processDealWithDefaultTag(update.message.text))
+                }
+            } else if (update.hasCallbackQuery()) {
+                try {
+                    if (update.callbackQuery.data.startsWith("@")) {
+                        execute(
+                            SendMessage().setText(
+                                keyboardCallbackService.processCommand(update.callbackQuery.data)
+                            )
+                                .setChatId(update.callbackQuery.message.chatId)
+                        )
+                    } else {
+                        silent.send(
+                            update.callbackQuery.data,
+                            update.callbackQuery.message.chatId
+                        )
+                    }
+                } catch (e: TelegramApiException) {
+                    e.printStackTrace()
+                }
             }
         }
     }
@@ -124,5 +149,24 @@ class DealBot(
                 )
             }
             .build()
+    }
+
+    fun tagsKeyboard(): Ability {
+        return Ability
+            .builder()
+            .name("tgkb")
+            .info("Tags keyboard")
+            .locality(Locality.ALL)
+            .privacy(Privacy.PUBLIC)
+            .action { ctx: MessageContext ->
+                execute(
+                    sendKeyboard(ctx.chatId(), abilityTagService.getKeyboardMarkup(), "Tags")
+                )
+            }
+            .build()
+    }
+
+    private fun sendKeyboard(chatId: Long, markup: InlineKeyboardMarkup, header: String): SendMessage {
+        return SendMessage().setChatId(chatId).setText(header).setReplyMarkup(markup)
     }
 }

@@ -1,0 +1,25 @@
+[Unit]
+Description=My deal bot
+After=network.service
+
+[Service]
+Type=forking
+
+PIDFile=/opt/app/dealbot/dealbot.pid
+
+WorkingDirectory=/opt/app/dealbot/
+
+ExecStart=/opt/app/dealbot/dealbot.sh start
+ExecStop=/opt/app/dealbot/dealbot.sh stop
+ExecReload=/opt/app/dealbot/dealbot.sh restart
+
+SuccessExitStatus=143
+
+User=kit
+Group=kit
+
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

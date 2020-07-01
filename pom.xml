@@ -135,10 +135,11 @@
                             <goal>repackage</goal>
                         </goals>
                         <configuration>
-                            <classifier>exec</classifier>
+                            <classifier></classifier>
                             <mainClass>
                                 ${main.class}
                             </mainClass>
+                            <finalName>dealbot</finalName>
                         </configuration>
                     </execution>
                 </executions>

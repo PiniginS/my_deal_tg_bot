@@ -1,8 +1,8 @@
 bot:
-  token: "1022104603:AAH972QaQOgjDnTZh5oIWtMcvkA6-v6jlwg"
-  botName: "HomeDealBot"
-  proxyHost: "81.210.32.101"
-  proxyPort: 8080
+  token: ""
+  botName: ""
+  proxyHost: ""
+  proxyPort: 0
   proxyType: "HTTP"
   proxyEnabled: false
 

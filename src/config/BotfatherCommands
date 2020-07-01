@@ -1,0 +1,5 @@
+tag - Add new tag
+tags - List of all tags
+dtag - Set or get default tag, call without param return current default tag
+deals - Get all items with default tag
+rmdeals - Remove all deals with tag

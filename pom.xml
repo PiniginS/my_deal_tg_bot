@@ -169,7 +169,6 @@
                     </execution>
                     <execution>
                         <id>ktlint-format</id>
-                        <phase>clean</phase>
                         <configuration>
                             <target name="ktlint">
                                 <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"

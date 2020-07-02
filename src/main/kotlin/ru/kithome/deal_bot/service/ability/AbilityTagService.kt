@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service
 import org.telegram.abilitybots.api.objects.MessageContext
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
-import ru.kithome.deal_bot.repository.SettingsRepository
 import ru.kithome.deal_bot.service.TagService
 import java.util.ArrayList
 
@@ -64,7 +63,7 @@ class AbilityTagService(
         }
     }
 
-    fun getKeyboardMarkup() : InlineKeyboardMarkup {
+    fun getKeyboardMarkup(): InlineKeyboardMarkup {
         val inlineKeyboardMarkup = InlineKeyboardMarkup()
         val buttonsRowList: MutableList<List<InlineKeyboardButton>> = ArrayList()
 
@@ -77,8 +76,7 @@ class AbilityTagService(
 
             if (tag.tag.equals(defaultTagName)) {
                 tagNameButton.text = EmojiParser.parseToUnicode(":white_check_mark:${tag.tag} : ${tag.description}")
-            }
-            else {
+            } else {
                 tagNameButton.text = "${tag.tag} : ${tag.description}"
             }
             tagNameButton.callbackData = "@setDefaultTag:${tag.tag}"

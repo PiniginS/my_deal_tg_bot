@@ -16,7 +16,6 @@ import ru.kithome.deal_bot.service.ability.AbilityDealService
 import ru.kithome.deal_bot.service.ability.AbilityTagService
 import ru.kithome.deal_bot.service.ability.KeyboardCallbackService
 
-
 @Component
 class DealBot(
     private val abilityTagService: AbilityTagService,

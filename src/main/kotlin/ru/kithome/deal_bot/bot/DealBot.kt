@@ -42,12 +42,15 @@ class DealBot(
             } else if (update.hasCallbackQuery()) {
                 try {
                     if (update.callbackQuery.data.startsWith("@")) {
-                        execute(
-                            SendMessage().setText(
-                                keyboardCallbackService.processCommand(update.callbackQuery.data)
+                        val message = keyboardCallbackService.processCommand(update.callbackQuery.data)
+                        if (message.isNotEmpty()) {
+                            execute(
+                                SendMessage().setText(
+                                    message
+                                )
+                                    .setChatId(update.callbackQuery.message.chatId)
                             )
-                                .setChatId(update.callbackQuery.message.chatId)
-                        )
+                        }
                     } else {
                         silent.send(
                             update.callbackQuery.data,
@@ -82,84 +85,99 @@ class DealBot(
             .build()
     }
 
-    fun allTags(): Ability {
+//    fun allTags(): Ability {
+//        return Ability
+//            .builder()
+//            .name("tagslist")
+//            .info("List of all tags")
+//            .locality(Locality.ALL)
+//            .privacy(Privacy.PUBLIC)
+//            .action { ctx: MessageContext ->
+//                val response = abilityTagService.getAllTags()
+//                silent.send(
+//                    response,
+//                    ctx.chatId()
+//                )
+//            }
+//            .build()
+//    }
+//
+//    fun defaultTag(): Ability {
+//        return Ability
+//            .builder()
+//            .name("dtag")
+//            .info("Set or get default tag")
+//            .locality(Locality.ALL)
+//            .privacy(Privacy.PUBLIC)
+//            .action { ctx: MessageContext ->
+//                val response = abilityTagService.setOrGetDefaultTag(ctx)
+//                silent.send(
+//                    response,
+//                    ctx.chatId()
+//                )
+//            }
+//            .build()
+//    }
+//
+//    fun getDeals(): Ability {
+//        return Ability
+//            .builder()
+//            .name("dealslist")
+//            .info("Get deals")
+//            .locality(Locality.ALL)
+//            .privacy(Privacy.PUBLIC)
+//            .action { ctx: MessageContext ->
+//                val response = abilityDealService.findAllDealsWithDefaultTag()
+//                silent.send(
+//                    response,
+//                    ctx.chatId()
+//                )
+//            }
+//            .build()
+//    }
+//
+//    fun removeDeals(): Ability {
+//        return Ability
+//            .builder()
+//            .name("rmdeals")
+//            .info("Remove all deals by tag")
+//            .locality(Locality.ALL)
+//            .privacy(Privacy.PUBLIC)
+//            .action { ctx: MessageContext ->
+//                val response = abilityDealService.removeDealsByTag(ctx)
+//                silent.send(
+//                    response,
+//                    ctx.chatId()
+//                )
+//            }
+//            .build()
+//    }
+
+    fun showTagsKeyboard(): Ability {
         return Ability
             .builder()
             .name("tags")
-            .info("List of all tags")
-            .locality(Locality.ALL)
-            .privacy(Privacy.PUBLIC)
-            .action { ctx: MessageContext ->
-                val response = abilityTagService.getAllTags()
-                silent.send(
-                    response,
-                    ctx.chatId()
-                )
-            }
-            .build()
-    }
-
-    fun defaultTag(): Ability {
-        return Ability
-            .builder()
-            .name("dtag")
-            .info("Set or get default tag")
-            .locality(Locality.ALL)
-            .privacy(Privacy.PUBLIC)
-            .action { ctx: MessageContext ->
-                val response = abilityTagService.setOrGetDefaultTag(ctx)
-                silent.send(
-                    response,
-                    ctx.chatId()
-                )
-            }
-            .build()
-    }
-
-    fun getDeals(): Ability {
-        return Ability
-            .builder()
-            .name("deals")
-            .info("Get deals")
-            .locality(Locality.ALL)
-            .privacy(Privacy.PUBLIC)
-            .action { ctx: MessageContext ->
-                val response = abilityDealService.findAllDealsWithDefaultTag()
-                silent.send(
-                    response,
-                    ctx.chatId()
-                )
-            }
-            .build()
-    }
-
-    fun removeDeals(): Ability {
-        return Ability
-            .builder()
-            .name("rmdeals")
-            .info("Remove all deals by tag")
-            .locality(Locality.ALL)
-            .privacy(Privacy.PUBLIC)
-            .action { ctx: MessageContext ->
-                val response = abilityDealService.removeDealsByTag(ctx)
-                silent.send(
-                    response,
-                    ctx.chatId()
-                )
-            }
-            .build()
-    }
-
-    fun tagsKeyboard(): Ability {
-        return Ability
-            .builder()
-            .name("tgkb")
             .info("Tags keyboard")
             .locality(Locality.ALL)
             .privacy(Privacy.PUBLIC)
             .action { ctx: MessageContext ->
                 execute(
                     sendKeyboard(ctx.chatId(), abilityTagService.getKeyboardMarkup(), "Tags")
+                )
+            }
+            .build()
+    }
+
+    fun showDealsKeyboard(): Ability {
+        return Ability
+            .builder()
+            .name("deals")
+            .info("Deals keyboard keyboard")
+            .locality(Locality.ALL)
+            .privacy(Privacy.PUBLIC)
+            .action { ctx: MessageContext ->
+                execute(
+                    sendKeyboard(ctx.chatId(), abilityDealService.getKeyboardMarkup(), "Deals")
                 )
             }
             .build()

@@ -18,7 +18,7 @@ class DealService(
 
         if (dealEntity == null) {
             dealEntity = DealEntity()
-            dealEntity.isActive = true
+            dealEntity.isActive = false
             dealEntity.tag = tag
             dealEntity.timestamp = LocalDateTime.now().toString()
             dealEntity.description = deal
@@ -34,21 +34,48 @@ class DealService(
         if (!tagService.isTagExist(tag)) throw DealBotException("Can't find tag \"$tag\"")
         val dealEntity = dealRepository.findFirstByDescriptionAndTag(deal, tag)
             ?: throw DealBotException("Can't find deal : \"$deal\" with tag : \"$tag\"")
-        dealEntity.isActive = false
-        dealRepository.save(dealEntity)
+        removeDeal(dealEntity.id)
     }
 
-    fun findDeals(tag: String): List<DealEntity> {
+    fun findActiveDealsByTag(tag: String): List<DealEntity> {
         return dealRepository.findAllByTag(tag)
             .filter { it.isActive }
     }
 
+    fun findDealsWithDefaultTag(): List<DealEntity> {
+        return dealRepository.findAllByTag(tagService.getDefaultTag())
+    }
+
+
     fun removeDealsByTag(tag: String) {
         dealRepository.findAllByTag(tag)
-            .filter { it.isActive }
             .forEach {
-                it.isActive = false
-                dealRepository.save(it)
+                removeDeal(it.id)
             }
+    }
+
+    fun switchDealStatus(id: Int) {
+        val deal = dealRepository.findById(id).orElseThrow {
+            DealBotException("Can't find deal")
+        }
+        try {
+            deal.isActive = !deal.isActive
+            dealRepository.save(deal)
+        }
+        catch (exception : Exception) {
+            throw DealBotException("Got error while save deal status")
+        }
+    }
+
+    fun removeDeal(id: Int) {
+        dealRepository.findById(id).orElseThrow {
+            DealBotException("Can't find deal")
+        }
+        try {
+            dealRepository.deleteById(id)
+        }
+        catch (exception : Exception) {
+            throw DealBotException("Got error while removing deal")
+        }
     }
 }

@@ -1,10 +1,14 @@
 package ru.kithome.deal_bot.service.ability
 
+import com.vdurmont.emoji.EmojiParser
 import org.springframework.stereotype.Service
 import org.telegram.abilitybots.api.objects.MessageContext
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 import ru.kithome.deal_bot.exception.DealBotException
 import ru.kithome.deal_bot.service.DealService
 import ru.kithome.deal_bot.service.TagService
+import java.util.ArrayList
 
 @Service
 class AbilityDealService(
@@ -43,7 +47,7 @@ class AbilityDealService(
         return try {
             defaultTag = getDefaultTag()
 
-            val answer = dealService.findDeals(defaultTag).joinToString(separator = "\n") { "${it.description}" }
+            val answer = dealService.findActiveDealsByTag(defaultTag).joinToString(separator = "\n") { "${it.description}" }
 
             if (answer.isEmpty())
                 return "No items"
@@ -77,22 +81,38 @@ class AbilityDealService(
         return deal.replace(Regex("^[+-]"), "")
     }
 
-//
-//    fun getTagsKeyboard(): SendMessage {
-//        tagService.getAllActiveTags().map {
-//            var row : List<InlineKeyboardButton> = listOf(
-//
-//            )
-//        }
-//    }
-//
-//    fun toggleActiveTag(tag : String) : String {
-//        return try {
-//            val newState = tagService.toggleTagFlag(tag)
-//            "Tag : \"$tag\" is active? : $newState"
-//        }
-//        catch (exception : Exception) {
-//            "Error while deactivate tag : \"$tag\" due : ${exception.message}"
-//        }
-//    }
+    fun getKeyboardMarkup(): InlineKeyboardMarkup {
+        val inlineKeyboardMarkup = InlineKeyboardMarkup()
+        val buttonsRowList: MutableList<List<InlineKeyboardButton>> = ArrayList()
+
+        for (deal in dealService.findDealsWithDefaultTag()) {
+            val dealNameButton = InlineKeyboardButton()
+            val removeDealButton = InlineKeyboardButton()
+            val buttonsRow: MutableList<InlineKeyboardButton> = ArrayList()
+
+            if (deal.isActive) {
+                dealNameButton.text = EmojiParser.parseToUnicode(":white_check_mark:${deal.description}:white_check_mark:")
+            } else {
+                dealNameButton.text = "${deal.description}"
+            }
+            dealNameButton.callbackData = "@switchDealStatus:${deal.id}"
+
+            removeDealButton.text = EmojiParser.parseToUnicode(":wastebasket:")
+            removeDealButton.callbackData = "@removeDeal:${deal.id}"
+
+            buttonsRow.add(dealNameButton)
+            buttonsRow.add(removeDealButton)
+            buttonsRowList.add(buttonsRow)
+        }
+
+        val buttonsRow: MutableList<InlineKeyboardButton> = ArrayList()
+        val clearAllDealsButton = InlineKeyboardButton()
+        clearAllDealsButton.text = EmojiParser.parseToUnicode(":x:Remove all:x:")
+        clearAllDealsButton.callbackData = "@clearDeals:${tagService.getDefaultTag()}"
+        buttonsRow.add(clearAllDealsButton)
+        buttonsRowList.add(buttonsRow)
+
+        inlineKeyboardMarkup.keyboard = buttonsRowList
+        return inlineKeyboardMarkup
+    }
 }

@@ -72,7 +72,7 @@ class KeyboardCallbackService(
         return ""
     }
 
-    private fun clearDeals(arguments: List<String>) : String {
+    private fun clearDeals(arguments: List<String>): String {
         try {
             dealService.removeDealsByTag(arguments[0])
         } catch (e: DealBotException) {

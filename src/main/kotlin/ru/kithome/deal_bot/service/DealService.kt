@@ -46,7 +46,6 @@ class DealService(
         return dealRepository.findAllByTag(tagService.getDefaultTag())
     }
 
-
     fun removeDealsByTag(tag: String) {
         dealRepository.findAllByTag(tag)
             .forEach {
@@ -61,8 +60,7 @@ class DealService(
         try {
             deal.isActive = !deal.isActive
             dealRepository.save(deal)
-        }
-        catch (exception : Exception) {
+        } catch (exception: Exception) {
             throw DealBotException("Got error while save deal status")
         }
     }
@@ -73,8 +71,7 @@ class DealService(
         }
         try {
             dealRepository.deleteById(id)
-        }
-        catch (exception : Exception) {
+        } catch (exception: Exception) {
             throw DealBotException("Got error while removing deal")
         }
     }

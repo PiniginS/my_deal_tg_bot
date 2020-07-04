@@ -71,7 +71,7 @@ class BotTagService(
                 return tagDescription
             }
         } catch (exception: Exception) {
-            //TODO add logger
+            // TODO add logger
         }
         return "Deals"
     }

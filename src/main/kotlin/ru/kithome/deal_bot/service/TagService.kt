@@ -46,6 +46,15 @@ class TagService(
         throw DealBotException("Cant't get default flag")
     }
 
+    fun getDefaultTagDescription(): String? {
+        val defaultFlagSetting = settingsRepository.findByKey(defaultTag)
+        val defaultFlagValue = defaultFlagSetting.value
+        defaultFlagValue?.let {
+            return tagRepository.findByTag(defaultFlagValue).description
+        }
+        throw DealBotException("Cant't get default flag description")
+    }
+
     fun isTagExist(tag: String): Boolean {
         return try {
             tagRepository.findByTag(tag)

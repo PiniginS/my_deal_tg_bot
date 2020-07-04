@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import ru.kithome.deal_bot.exception.DealBotException
 import ru.kithome.deal_bot.service.DealService
 import ru.kithome.deal_bot.service.TagService
+import ru.kithome.deal_bot.type.KeyboardType
 import java.util.ArrayList
 
 @Service
@@ -105,12 +106,19 @@ class BotDealService(
             buttonsRowList.add(buttonsRow)
         }
 
-        val buttonsRow: MutableList<InlineKeyboardButton> = ArrayList()
+        val clearButtonRow: MutableList<InlineKeyboardButton> = ArrayList()
         val clearAllDealsButton = InlineKeyboardButton()
-        clearAllDealsButton.text = EmojiParser.parseToUnicode(":x:Remove all:x:")
+        clearAllDealsButton.text = EmojiParser.parseToUnicode(":x:Clear list:x:")
         clearAllDealsButton.callbackData = "@clearDeals:${tagService.getDefaultTag()}"
-        buttonsRow.add(clearAllDealsButton)
-        buttonsRowList.add(buttonsRow)
+        clearButtonRow.add(clearAllDealsButton)
+        buttonsRowList.add(clearButtonRow)
+
+        val openTargButtonRow: MutableList<InlineKeyboardButton> = ArrayList()
+        val openTagsButton = InlineKeyboardButton()
+        openTagsButton.text = EmojiParser.parseToUnicode("Open tags list")
+        openTagsButton.callbackData = "@showKeyboard:${KeyboardType.TAGS}"
+        openTargButtonRow.add(openTagsButton)
+        buttonsRowList.add(openTargButtonRow)
 
         inlineKeyboardMarkup.keyboard = buttonsRowList
         return inlineKeyboardMarkup

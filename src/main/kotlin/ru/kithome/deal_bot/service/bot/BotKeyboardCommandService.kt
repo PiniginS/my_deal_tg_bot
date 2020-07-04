@@ -2,28 +2,31 @@ package ru.kithome.deal_bot.service.bot
 
 import org.springframework.stereotype.Service
 import ru.kithome.deal_bot.exception.DealBotException
+import ru.kithome.deal_bot.model.CommandResponse
 import ru.kithome.deal_bot.service.DealService
 import ru.kithome.deal_bot.service.TagService
+import ru.kithome.deal_bot.type.KeyboardType
 
 @Service
-class BotCallbackService(
+class BotKeyboardCommandService(
     private val tagService: TagService,
     private val dealService: DealService
 ) {
 
-    fun processCommand(callbackData: String): String {
+    fun processCommand(callbackData: String): CommandResponse {
         val commandParts = callbackData.split(Regex("[:]"), 2)
         val command = commandParts[0]
         val arguments = commandParts[1].split(":")
         when (command) {
-            "@setDefaultTag" -> return setDefaultTag(arguments)
-            "@removeTag" -> return deleteTag(arguments)
-            "@switchDealStatus" -> return switchDealStatus(arguments)
-            "@removeDeal" -> return removeDeal(arguments)
-            "@clearDeals" -> return clearDeals(arguments)
+            "@setDefaultTag" -> return CommandResponse(setDefaultTag(arguments), KeyboardType.TAGS)
+            "@removeTag" -> return CommandResponse(deleteTag(arguments), KeyboardType.TAGS)
+            "@switchDealStatus" -> return CommandResponse(switchDealStatus(arguments), KeyboardType.DEALS)
+            "@removeDeal" -> return CommandResponse(removeDeal(arguments), KeyboardType.DEALS)
+            "@clearDeals" -> return CommandResponse(clearDeals(arguments), KeyboardType.DEALS)
+            "@showKeyboard" -> return CommandResponse(nextKeyboard = getKeyboardType(arguments))
         }
 
-        return "Command not found"
+        return CommandResponse("Command not found", KeyboardType.TAGS)
     }
 
     private fun setDefaultTag(arguments: List<String>): String {
@@ -81,5 +84,9 @@ class BotCallbackService(
             return "Error while removing deal all deals with tag : ${arguments[0]}"
         }
         return "All deals with tag : ${arguments[0]} was removed"
+    }
+
+    private fun getKeyboardType(arguments: List<String>): KeyboardType {
+        return KeyboardType.valueOf(arguments[0])
     }
 }

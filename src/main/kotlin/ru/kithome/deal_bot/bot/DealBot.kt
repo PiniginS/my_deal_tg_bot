@@ -13,13 +13,16 @@ import ru.kithome.deal_bot.config.BotConfiguration
 import ru.kithome.deal_bot.config.properties.BotProperties
 import ru.kithome.deal_bot.model.CallbackResponse
 import ru.kithome.deal_bot.service.bot.BotDealService
+import ru.kithome.deal_bot.service.bot.BotMenuService
 import ru.kithome.deal_bot.service.bot.BotTagService
 import ru.kithome.deal_bot.service.bot.BotUpdateService
+import ru.kithome.deal_bot.type.KeyboardType
 
 @Component
 class DealBot(
     private val botTagService: BotTagService,
     private val botDealService: BotDealService,
+    private val botMenuService: BotMenuService,
     private val botUpdateService: BotUpdateService,
     botProperties: BotProperties,
     botConfiguration: BotConfiguration
@@ -42,6 +45,9 @@ class DealBot(
                     callbackResponse.chatId
                 )
             }
+            if (callbackResponse.nextKeyboard != null) {
+                showKeyboard(callbackResponse.chatId, callbackResponse.nextKeyboard)
+            }
         }
     }
 
@@ -58,6 +64,7 @@ class DealBot(
                     response,
                     ctx.chatId()
                 )
+                showKeyboard(ctx.chatId(), KeyboardType.TAGS)
             }
             .build()
     }
@@ -70,9 +77,7 @@ class DealBot(
             .locality(Locality.ALL)
             .privacy(Privacy.PUBLIC)
             .action { ctx: MessageContext ->
-                execute(
-                    sendKeyboard(ctx.chatId(), botTagService.getKeyboardMarkup(), "Tags")
-                )
+                showKeyboard(ctx.chatId(), KeyboardType.TAGS)
             }
             .build()
     }
@@ -81,18 +86,37 @@ class DealBot(
         return Ability
             .builder()
             .name("deals")
-            .info("Deals keyboard keyboard")
+            .info("Deals keyboard")
             .locality(Locality.ALL)
             .privacy(Privacy.PUBLIC)
             .action { ctx: MessageContext ->
-                execute(
-                    sendKeyboard(ctx.chatId(), botDealService.getKeyboardMarkup(), "Deals")
-                )
+                showKeyboard(ctx.chatId(), KeyboardType.DEALS)
             }
             .build()
     }
 
-    private fun sendKeyboard(chatId: Long, markup: InlineKeyboardMarkup, header: String): SendMessage {
-        return SendMessage().setChatId(chatId).setText(header).setReplyMarkup(markup)
+    fun showMenuKeyboard(): Ability {
+        return Ability
+            .builder()
+            .name("menu")
+            .info("Menu keyboard")
+            .locality(Locality.ALL)
+            .privacy(Privacy.PUBLIC)
+            .action { ctx: MessageContext ->
+                showKeyboard(ctx.chatId(), KeyboardType.MENU)
+            }
+            .build()
+    }
+
+    private fun showKeyboard(chatId: Long, keyboardType: KeyboardType) {
+        when (keyboardType) {
+            KeyboardType.DEALS -> sendKeyboard(chatId, botDealService.getKeyboardMarkup(), botTagService.getDefaultTagDescription())
+            KeyboardType.TAGS -> sendKeyboard(chatId, botTagService.getKeyboardMarkup(), "Tags")
+            KeyboardType.MENU -> sendKeyboard(chatId, botMenuService.getKeyboardMarkup(), "Menu")
+        }
+    }
+
+    private fun sendKeyboard(chatId: Long, markup: InlineKeyboardMarkup, header: String) {
+        execute(SendMessage().setChatId(chatId).setText(header).setReplyMarkup(markup))
     }
 }

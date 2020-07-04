@@ -8,7 +8,7 @@ import ru.kithome.deal_bot.model.CallbackResponse
 @Service
 class BotUpdateService(
     private val botDealService: BotDealService,
-    private val botCallbackService: BotCallbackService
+    private val botKeyboardCommandService: BotKeyboardCommandService
 ) {
 
     fun processUpdate(update: Update?): CallbackResponse? {
@@ -25,7 +25,7 @@ class BotUpdateService(
     private fun processMessage(update: Update): CallbackResponse? {
         val updateText = update.message.text
 
-        if (updateText.startsWith("/")) return CallbackResponse(update.message.chatId, null)
+        if (updateText.startsWith("/")) return CallbackResponse(chatId = update.message.chatId)
 
         if (updateText.startsWith("+") || updateText.startsWith("-")) {
             return CallbackResponse(
@@ -39,9 +39,11 @@ class BotUpdateService(
     private fun processCallback(update: Update): CallbackResponse? {
         try {
             return if (update.callbackQuery.data.startsWith("@")) {
+                val commandResponse = botKeyboardCommandService.processCommand(update.callbackQuery.data)
                 CallbackResponse(
                     update.callbackQuery.message.chatId,
-                    botCallbackService.processCommand(update.callbackQuery.data)
+                    commandResponse.message,
+                    commandResponse.nextKeyboard
                 )
             } else {
                 CallbackResponse(

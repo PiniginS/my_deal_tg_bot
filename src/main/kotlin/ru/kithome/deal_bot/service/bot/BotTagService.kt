@@ -6,6 +6,7 @@ import org.telegram.abilitybots.api.objects.MessageContext
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 import ru.kithome.deal_bot.service.TagService
+import ru.kithome.deal_bot.type.KeyboardType
 import java.util.ArrayList
 
 @Service
@@ -63,6 +64,18 @@ class BotTagService(
         }
     }
 
+    fun getDefaultTagDescription(): String {
+        try {
+            val tagDescription = tagService.getDefaultTagDescription()
+            tagDescription?.let {
+                return tagDescription
+            }
+        } catch (exception: Exception) {
+            //TODO add logger
+        }
+        return "Deals"
+    }
+
     fun getKeyboardMarkup(): InlineKeyboardMarkup {
         val inlineKeyboardMarkup = InlineKeyboardMarkup()
         val buttonsRowList: MutableList<List<InlineKeyboardButton>> = ArrayList()
@@ -88,6 +101,14 @@ class BotTagService(
             buttonsRow.add(removeTagButton)
             buttonsRowList.add(buttonsRow)
         }
+
+        val openDealsButtonRow: MutableList<InlineKeyboardButton> = ArrayList()
+        val openDealsButton = InlineKeyboardButton()
+        openDealsButton.text = EmojiParser.parseToUnicode("Open deals list")
+        openDealsButton.callbackData = "@showKeyboard:${KeyboardType.DEALS}"
+        openDealsButtonRow.add(openDealsButton)
+        buttonsRowList.add(openDealsButtonRow)
+
         inlineKeyboardMarkup.keyboard = buttonsRowList
         return inlineKeyboardMarkup
     }

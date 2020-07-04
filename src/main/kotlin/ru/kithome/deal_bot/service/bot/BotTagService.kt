@@ -1,4 +1,4 @@
-package ru.kithome.deal_bot.service.ability
+package ru.kithome.deal_bot.service.bot
 
 import com.vdurmont.emoji.EmojiParser
 import org.springframework.stereotype.Service
@@ -9,7 +9,7 @@ import ru.kithome.deal_bot.service.TagService
 import java.util.ArrayList
 
 @Service
-class AbilityTagService(
+class BotTagService(
     private val tagService: TagService
 ) {
 

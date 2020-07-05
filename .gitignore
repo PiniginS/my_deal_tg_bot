@@ -96,3 +96,4 @@ fabric.properties
 /HomeDealBot
 
 *.db
+/home_deal_test_bot

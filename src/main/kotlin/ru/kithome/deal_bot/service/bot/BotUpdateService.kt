@@ -25,7 +25,7 @@ class BotUpdateService(
     private fun processMessage(update: Update): CallbackResponse? {
         val updateText = update.message.text
 
-        if (updateText.startsWith("/")) return CallbackResponse(chatId = update.message.chatId)
+        if (updateText.startsWith("/")) return null
 
         if (updateText.startsWith("+") || updateText.startsWith("-")) {
             return CallbackResponse(

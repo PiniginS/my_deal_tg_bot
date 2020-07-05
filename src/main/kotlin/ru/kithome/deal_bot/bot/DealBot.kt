@@ -7,6 +7,7 @@ import org.telegram.abilitybots.api.objects.Locality
 import org.telegram.abilitybots.api.objects.MessageContext
 import org.telegram.abilitybots.api.objects.Privacy
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import ru.kithome.deal_bot.config.BotConfiguration
@@ -28,6 +29,10 @@ class DealBot(
     botConfiguration: BotConfiguration
 ) : AbilityBot(botProperties.token, botProperties.botName, botConfiguration.getBotOptions()) {
 
+    companion object {
+        var lastKeyboardMessageId: Int? = null
+    }
+
     override fun creatorId(): Int {
         return 261560926
     }
@@ -46,7 +51,7 @@ class DealBot(
                 )
             }
             if (callbackResponse.nextKeyboard != null) {
-                showKeyboard(callbackResponse.chatId, callbackResponse.nextKeyboard)
+                switchKeyboard(callbackResponse.chatId, callbackResponse.nextKeyboard)
             }
         }
     }
@@ -64,7 +69,7 @@ class DealBot(
                     response,
                     ctx.chatId()
                 )
-                showKeyboard(ctx.chatId(), KeyboardType.TAGS)
+                switchKeyboard(ctx.chatId(), KeyboardType.TAGS)
             }
             .build()
     }
@@ -77,7 +82,7 @@ class DealBot(
             .locality(Locality.ALL)
             .privacy(Privacy.PUBLIC)
             .action { ctx: MessageContext ->
-                showKeyboard(ctx.chatId(), KeyboardType.TAGS)
+                switchKeyboard(ctx.chatId(), KeyboardType.TAGS)
             }
             .build()
     }
@@ -90,7 +95,7 @@ class DealBot(
             .locality(Locality.ALL)
             .privacy(Privacy.PUBLIC)
             .action { ctx: MessageContext ->
-                showKeyboard(ctx.chatId(), KeyboardType.DEALS)
+                switchKeyboard(ctx.chatId(), KeyboardType.DEALS)
             }
             .build()
     }
@@ -103,20 +108,31 @@ class DealBot(
             .locality(Locality.ALL)
             .privacy(Privacy.PUBLIC)
             .action { ctx: MessageContext ->
-                showKeyboard(ctx.chatId(), KeyboardType.MENU)
+                switchKeyboard(ctx.chatId(), KeyboardType.MENU)
             }
             .build()
     }
 
-    private fun showKeyboard(chatId: Long, keyboardType: KeyboardType) {
+    private fun switchKeyboard(chatId: Long, keyboardType: KeyboardType) {
         when (keyboardType) {
-            KeyboardType.DEALS -> sendKeyboard(chatId, botDealService.getKeyboardMarkup(), botTagService.getDefaultTagDescription())
-            KeyboardType.TAGS -> sendKeyboard(chatId, botTagService.getKeyboardMarkup(), "Tags")
-            KeyboardType.MENU -> sendKeyboard(chatId, botMenuService.getKeyboardMarkup(), "Menu")
+            KeyboardType.DEALS -> refreshKeyboard(chatId, botDealService.getKeyboardMarkup(), botTagService.getDefaultTagDescription())
+            KeyboardType.TAGS -> refreshKeyboard(chatId, botTagService.getKeyboardMarkup(), "Tags")
+            KeyboardType.MENU -> refreshKeyboard(chatId, botMenuService.getKeyboardMarkup(), "Menu")
+        }
+    }
+
+    private fun refreshKeyboard(chatId: Long, markup: InlineKeyboardMarkup, header: String) {
+        eraseLastKeyboard(chatId, lastKeyboardMessageId)
+        sendKeyboard(chatId, markup, header)
+    }
+
+    private fun eraseLastKeyboard(chatId: Long, messageId: Int?) {
+        if (messageId != null) {
+            execute(DeleteMessage().setChatId(chatId).setMessageId(messageId))
         }
     }
 
     private fun sendKeyboard(chatId: Long, markup: InlineKeyboardMarkup, header: String) {
-        execute(SendMessage().setChatId(chatId).setText(header).setReplyMarkup(markup))
+        lastKeyboardMessageId = execute(SendMessage().setChatId(chatId).setText(header).setReplyMarkup(markup)).messageId
     }
 }

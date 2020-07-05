@@ -13,7 +13,7 @@ class BotUpdateService(
 
     fun processUpdate(update: Update?): CallbackResponse? {
         update?.let {
-            if (update.hasMessage()) {
+            if (update.hasMessage() && update.message.text != null) {
                 return processMessage(update)
             } else if (update.hasCallbackQuery()) {
                 return processCallback(update)
